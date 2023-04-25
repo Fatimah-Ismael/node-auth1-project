@@ -27,10 +27,15 @@ const bcrypt = require('bcryptjs')
     "message": "Password must be longer than 3 chars"
   }
  */
-router.post('/login', checkUsernameExists, (req, res, next)=>{
-  res.status(200).json({ message: 'not sure yet'})
-})
-
+  router.post('/register', checkUsernameFree, checkPasswordLength, (req, res, next)=>{
+    const { username, password } = req.body
+    const hash = bcrypt.hashSync(password, 8)//2^8
+    User.add({ username, password: hash })
+      .then (saved =>{
+        res.status(200).json(saved)
+      })
+      .catch(next)
+  })
 /**
   2 [POST] /api/auth/login { "username": "sue", "password": "1234" }
 
@@ -46,15 +51,18 @@ router.post('/login', checkUsernameExists, (req, res, next)=>{
     "message": "Invalid credentials"
   }
  */
-router.post('/register', checkUsernameFree, checkPasswordLength, (req, res, next)=>{
-  const { username, password } = req.body
-  const hash = bcrypt.hashSync(password, 8)//2^8
-  User.add({ username, password: hash })
-    .then (saved =>{
-      res.status(201).json(saved)
-    })
-    .catch(next)
-})
+  router.post('/login', checkUsernameExists, (req, res, next)=>{
+    const { password } = req.body
+    if(bcrypt.compareSync(password, req.user.password)) {
+      // make it so cookie is set on the client 
+      //make it so server stores a session with a session id
+      req.session.user = req.user
+      res.json({ message: `Welcome ${req.user.username}`})
+    } else {
+      next({ status: 401, message: 'Invalid Credentials'})
+    }
+  
+  })
 
 /**
   3 [GET] /api/auth/logout
