@@ -25,7 +25,7 @@ const { checkPasswordLength, checkUsernameFree, checkUsernameExists } = require(
   }
  */
 router.post('/login', checkUsernameExists, (req, res, next)=>{
-  res.json('login')
+  res.status(200).json({ message: 'not sure yet'})
 })
 
 /**
