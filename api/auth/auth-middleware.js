@@ -6,7 +6,12 @@
     "message": "You shall not pass!"
   }
 */
-function restricted() {
+function restricted(req, res, next) {
+  if(req.session.user){
+    next()
+  } else {
+    next({ status: 401, message: 'You shall not pass!' })
+  }
 
 }
 
@@ -18,8 +23,10 @@ function restricted() {
     "message": "Username taken"
   }
 */
-function checkUsernameFree() {
-
+function checkUsernameFree(req, res, next) {
+ // if(user === ) {
+  // res.staus(422).json({ message: 'Username taken' })
+ //}
 }
 
 /*
@@ -30,8 +37,12 @@ function checkUsernameFree() {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists() {
-
+function checkUsernameExists(req, res, next) {
+if(!user){
+  next({ status: 401, message: 'Invalid credentials' })
+} else {
+  next()
+}
 }
 
 /*
@@ -43,7 +54,13 @@ function checkUsernameExists() {
   }
 */
 function checkPasswordLength() {
-
+ // if()
 }
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
+module.exports = {
+  checkPasswordLength,
+  checkUsernameExists,
+  checkUsernameFree, 
+  restricted
+}
